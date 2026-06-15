@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<!-- DHARMA INITIATIVE — INTRANET NODE SWN-7 — EYES ONLY -->
+<!-- SWAN STATION — SUBLEVEL B — CLEARANCE LEVEL 4 -->
+<!-- LAST VERIFIED: CYCLE 10894 -->
+<!-- IF YOU ARE READING THIS PAGE SOURCE: YOU ARE PAYING ATTENTION. GOOD. -->
+<!-- THE TERMINAL KNOWS MORE THAN THIS PAGE. -->
+<!-- COORDINATES: RESTRICTED — CLEARANCE 5 REQUIRED -->
+<!-- NEXT STEP: OPEN THE TERMINAL. TYPE HELP. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHARMA INITIATIVE :: SWAN STATION :: INTRANET NODE</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   DHARMA INITIATIVE — SWAN — INTRANET v6.1.1
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --ph:        #4dff7c;   /* phosphor green */
+  --ph-mid:    #25b84a;
+  --ph-dim:    #0f5a25;
+  --ph-faint:  #071a0d;
+  --am:        #e0a818;   /* amber */
+  --am-dim:    #6b4e09;
+  --red:       #ff2200;
+  --bg:        #010a02;
+  --panel:     #020e04;
+  --panel2:    #030b04;
+  --bd:        #0f2e16;   /* border */
+  --bd2:       #1a4a24;
+  --dim:       #1a4028;
+  /* Timer — show-accurate palette */
+  --td-green:  #b8ff00;   /* the yellow-green on show digits */
+  --td-warn:   #ff8c00;   /* orange warning */
+  --td-crit:   #ff1a00;   /* red critical */
+  --td-bg:     #000000;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ph);
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 18px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── CRT SCANLINES OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,0.13) 2px, rgba(0,0,0,0.13) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ── MOVING SCAN LINE ── */
+.scanline {
+  position: fixed;
+  top: -80px; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(transparent, rgba(77,255,124,0.022), transparent);
+  pointer-events: none;
+  z-index: 9997;
+  animation: scan 12s linear infinite;
+}
+@keyframes scan {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(calc(100vh + 80px)); }
+}
+
+/* ── KEYFRAMES ── */
+@keyframes blink   { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes flicker { 0%,100%{opacity:1} 5%{opacity:.91} 10%{opacity:1} 95%{opacity:.96} }
+@keyframes glyph-spin {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+@keyframes screen-flash {
+  0%,100% { background: #000; }
+  50%     { background: #0a0000; }
+}
+
+/* ═══════════════════════════════════════
+   SPLASH SCREEN
+   ═══════════════════════════════════════ */
+#splash {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  animation: flicker 0.25s infinite;
+  cursor: pointer;
+}
+#splash.fade-out {
+  animation: fadeOut 1.4s ease forwards;
+  pointer-events: none;
+}
+@keyframes fadeOut { 0%{opacity:1} 100%{opacity:0} }
+
+.sp-logo {
+  width: 200px;
+  height: 200px;
+  filter: drop-shadow(0 0 28px rgba(77,255,124,.5));
+  animation: logo-pulse 3.5s ease-in-out infinite;
+}
+@keyframes logo-pulse {
+  0%,100% { filter: drop-shadow(0 0 18px rgba(77,255,124,.35)); }
+  50%     { filter: drop-shadow(0 0 50px rgba(77,255,124,.75)); }
+}
+
+.sp-title {
+  font-size: 30px;
+  letter-spacing: 10px;
+  color: var(--ph);
+  text-shadow: 0 0 24px var(--ph);
+  text-align: center;
+}
+.sp-sub {
+  font-size: 13px;
+  letter-spacing: 6px;
+  color: var(--ph-dim);
+  text-align: center;
+}
+
+.sp-boot {
+  font-size: 13px;
+  color: var(--ph-dim);
+  letter-spacing: 1px;
+  line-height: 2;
+  text-align: left;
+  width: 400px;
+  max-width: 90vw;
+  border-top: 1px solid var(--bd);
+  padding-top: 14px;
+}
+.sp-boot .ok   { color: var(--ph); }
+.sp-boot .warn { color: var(--am); }
+.sp-boot .err  { color: var(--red); }
+
+.sp-press {
+  font-size: 15px;
+  letter-spacing: 5px;
+  color: var(--ph-mid);
+  animation: blink 1.2s infinite;
+}
+
+/* ═══════════════════════════════════════
+   HIEROGLYPH FAILURE SCREEN
+   ═══════════════════════════════════════ */
+#hieroScreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60000;
+  background: #000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  animation: screen-flash 0.6s infinite;
+}
+#hieroScreen.active { display: flex; }
+
+.hiero-box {
+  width: 340px;
+  border: 3px solid #300;
+  background: #050000;
+  box-shadow: 0 0 100px rgba(255,0,0,.35), inset 0 0 60px #000;
+  overflow: hidden;
+}
+.hiero-top, .hiero-bot {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: #600;
+  text-align: center;
+  padding: 6px 10px;
+  background: #020000;
+  border-bottom: 1px solid #300;
+}
+.hiero-bot {
+  border-top: 1px solid #300;
+  border-bottom: none;
+  animation: blink 0.5s infinite;
+}
+
+/* The two-column glyph display */
+.hiero-drum {
+  display: flex;
+  height: 120px;
+  overflow: hidden;
+}
+.hiero-col {
+  flex: 1;
+  border-right: 1px solid #300;
+  animation: glyph-spin 1.6s steps(1) infinite;
+}
+.hiero-col:last-child { border-right: none; animation-duration: 1.1s; }
+
+.h-glyph {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  background: #030000;
+  border-bottom: 1px solid #1a0000;
+  flex-shrink: 0;
+  /* Force red tint */
+  color: #cc2200;
+  text-shadow: 0 0 24px #ff0000, 0 0 48px #660000;
+  filter: sepia(1) saturate(8) hue-rotate(315deg);
+  font-family: 'Segoe UI Historic', 'Noto Sans Egyptian Hieroglyphs', 'Apple Symbols', serif;
+}
+
+.hiero-msg {
+  font-size: 20px;
+  letter-spacing: 5px;
+  color: var(--red);
+  text-shadow: 0 0 24px var(--red);
+  animation: blink 0.65s infinite;
+  text-align: center;
+}
+
+.hiero-sub {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: #600;
+  text-align: center;
+}
+
+.hiero-btn {
+  padding: 10px 40px;
+  background: transparent;
+  border: 2px solid #500;
+  color: #800;
+  font-family: 'VT323', monospace;
+  font-size: 17px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.hiero-btn:hover { border-color: var(--red); color: var(--red); box-shadow: 0 0 24px rgba(255,34,0,.3); }
+
+/* ═══════════════════════════════════════
+   COUNTDOWN WIDGET — FIXED TOP RIGHT
+   Show-accurate: dark bezel, yellow-green digits
+   ═══════════════════════════════════════ */
+#cdWidget {
+  position: fixed;
+  top: 16px;
+  right: 22px;
+  z-index: 1000;
+  display: none; /* shown after splash */
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.cd-label {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--dim);
+  text-align: right;
+  text-transform: uppercase;
+}
+
+/* Outer bezel — mimics the physical box on show */
+.cd-bezel {
+  background: #000;
+  border: 2px solid #111;
+  outline: 1px solid #0a0a0a;
+  box-shadow:
+    0 0 0 3px #050505,
+    0 0 20px rgba(184,255,0,.1),
+    inset 0 0 30px #000;
+  padding: 5px 12px 7px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  position: relative;
+}
+/* subtle inner glow */
+.cd-bezel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 110%, rgba(184,255,0,.04) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* Individual digit cell */
+.cd-dig {
+  width: 38px;
+  height: 62px;
+  background: #020200;
+  border: 1px solid #0d0d00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+/* horizontal centre line like show display */
+.cd-dig::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(0,0,0,.55);
+  z-index: 2;
+}
+.cd-dig span {
+  font-size: 54px;
+  line-height: 1;
+  font-family: 'VT323', monospace;
+  color: var(--td-green);
+  text-shadow: 0 0 8px rgba(184,255,0,.9), 0 0 24px rgba(184,255,0,.4);
+  position: relative;
+  z-index: 1;
+}
+
+.cd-colon {
+  font-size: 50px;
+  font-family: 'VT323', monospace;
+  color: var(--td-green);
+  text-shadow: 0 0 8px rgba(184,255,0,.9);
+  line-height: 1;
+  margin: 0 1px;
+  padding-bottom: 6px;
+  animation: blink 1s infinite;
+}
+
+/* Warning — amber/orange */
+.cd-bezel.warn .cd-dig span,
+.cd-bezel.warn .cd-colon {
+  color: var(--td-warn);
+  text-shadow: 0 0 10px rgba(255,140,0,.95), 0 0 28px rgba(255,140,0,.45);
+}
+/* Critical — red, flashing */
+.cd-bezel.crit .cd-dig span,
+.cd-bezel.crit .cd-colon {
+  color: var(--td-crit);
+  text-shadow: 0 0 14px rgba(255,26,0,1), 0 0 36px rgba(255,26,0,.5);
+  animation: blink .4s infinite;
+}
+
+/* Status text under timer */
+.cd-status {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-align: right;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════
+   MAIN LAYOUT
+   ═══════════════════════════════════════ */
+#mainContent {
+  display: none;
+  opacity: 0;
+  transition: opacity .9s;
+}
+#mainContent.visible { display: block; opacity: 1; }
+
+.wrap {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 18px 18px 48px;
+}
+
+/* ── SITE HEADER ── */
+.s-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--bd);
+  background: var(--panel);
+  padding: 10px 18px;
+  position: relative;
+}
+.s-hdr::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ph-dim), transparent);
+}
+
+.hdr-l { display: flex; flex-direction: column; gap: 3px; }
+.hdr-l .station {
+  font-size: 12px;
+  letter-spacing: 5px;
+  color: var(--ph);
+  text-shadow: 0 0 8px var(--ph-dim);
+}
+.hdr-l .node {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--dim);
+}
+
+.hdr-c { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+.swan-logo-sm {
+  width: 44px;
+  height: 44px;
+  opacity: .7;
+  cursor: pointer;
+  transition: opacity .3s;
+}
+.swan-logo-sm:hover { opacity: 1; }
+
+.hdr-r { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.hdr-clock {
+  font-size: 16px;
+  color: var(--am);
+  text-shadow: 0 0 8px var(--am-dim);
+  letter-spacing: 2px;
+}
+.hdr-cycle {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--dim);
+  cursor: pointer;
+}
+.hdr-cycle:hover { color: var(--ph-dim); }
+
+/* right padding so content doesn't go under timer */
+.hdr-r { padding-right: 190px; }
+@media(max-width:680px){ .hdr-r { padding-right: 150px; } }
+
+/* ── TICKER BAR ── */
+.ticker {
+  border: 1px solid var(--bd);
+  border-top: none;
+  background: var(--panel);
+  padding: 5px 18px;
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  cursor: pointer;
+}
+.ticker:hover { color: var(--ph-faint); }
+.ticker-tag {
+  color: var(--bd2);
+  font-size: 9px;
+  letter-spacing: 3px;
+  flex-shrink: 0;
+}
+.ticker-scroll { flex: 1; overflow: hidden; }
+.ticker-inner {
+  display: inline-block;
+  white-space: nowrap;
+  animation: tick 50s linear infinite;
+}
+@keyframes tick { 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
+
+/* ── MORSE STRIP ── */
+.morse {
+  border: 1px solid var(--bd);
+  border-top: none;
+  background: var(--bg);
+  padding: 3px 18px;
+  font-size: 9px;
+  color: var(--bd);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  font-family: monospace;
+  transition: color .4s;
+  user-select: none;
+}
+.morse:hover { color: var(--ph-faint); }
+
+/* ── CIPHER BAR ── */
+.cipher {
+  border: 1px solid var(--bd);
+  border-top: none;
+  background: var(--bg);
+  padding: 2px 18px;
+  font-size: 9px;
+  color: var(--bd);
+  letter-spacing: 1px;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  transition: color .4s;
+}
+.cipher:hover { color: var(--ph-faint); }
+
+/* ── BODY TWO-COLUMN GRID ── */
+.body-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  border: 1px solid var(--bd);
+  border-top: none;
+}
+@media(max-width:680px){ .body-grid { grid-template-columns: 1fr; } }
+
+.col-main { background: var(--panel); }
+.col-side {
+  background: var(--panel2);
+  border-left: 1px solid var(--bd);
+}
+@media(max-width:680px){ .col-side { border-left:none; border-top:1px solid var(--bd); } }
+
+/* ── PANEL BLOCK ── */
+.pblock {
+  border-bottom: 1px solid var(--bd);
+  padding: 16px 20px;
+}
+.pblock:last-child { border-bottom: none; }
+
+.plabel {
+  font-size: 9px;
+  letter-spacing: 5px;
+  color: var(--dim);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--bd);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.plabel-r { font-size: 9px; color: var(--bd2); }
+
+/* ── INPUT PANEL ── */
+.input-note {
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  line-height: 1.9;
+  margin-bottom: 14px;
+}
+
+.num-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.nf {
+  width: 64px;
+  height: 64px;
+  background: #000;
+  border: 1px solid var(--ph-dim);
+  color: var(--ph);
+  font-family: 'VT323', monospace;
+  font-size: 36px;
+  text-align: center;
+  outline: none;
+  text-shadow: 0 0 8px var(--ph-dim);
+  box-shadow: inset 0 0 14px rgba(0,0,0,.9);
+  -moz-appearance: textfield;
+  transition: border-color .2s, box-shadow .2s;
+}
+.nf::-webkit-inner-spin-button,
+.nf::-webkit-outer-spin-button { -webkit-appearance: none; }
+.nf:focus {
+  border-color: var(--ph);
+  box-shadow: 0 0 14px var(--ph-dim), inset 0 0 14px rgba(0,0,0,.9);
+}
+.nf.ok  { border-color: var(--ph); }
+.nf.bad { border-color: var(--red); box-shadow: 0 0 10px rgba(255,34,0,.3); }
+
+.nsep { color: var(--ph-dim); font-size: 28px; line-height: 1; }
+
+.exec-btn {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: 1px solid var(--ph-dim);
+  color: var(--ph-mid);
+  font-family: 'VT323', monospace;
+  font-size: 22px;
+  letter-spacing: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color .15s, border-color .15s;
+}
+.exec-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ph-faint);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .15s;
+}
+.exec-btn:hover { border-color: var(--ph); color: var(--ph); }
+.exec-btn:hover::before { transform: scaleX(1); }
+.exec-btn span { position: relative; z-index: 1; }
+
+.exec-note {
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* ── STATUS TABLE ── */
+.stat-table { width: 100%; border-collapse: collapse; }
+.stat-table tr { border-bottom: 1px dotted var(--ph-faint); }
+.stat-table tr:last-child { border-bottom: none; }
+.stat-table td { padding: 5px 0; font-size: 12px; vertical-align: middle; }
+.sk { color: var(--dim); letter-spacing: 2px; font-size: 10px; width: 55%; }
+.sv { text-align: right; }
+.so  { color: var(--ph); }
+.sw  { color: var(--am); }
+.se  { color: var(--red); }
+.sd  { color: var(--dim); }
+
+/* ── LOG PANEL ── */
+.log-out {
+  height: 150px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.95;
+  color: var(--ph-dim);
+  scrollbar-width: thin;
+  scrollbar-color: var(--ph-dim) var(--bg);
+}
+.log-out::-webkit-scrollbar { width: 3px; }
+.log-out::-webkit-scrollbar-thumb { background: var(--ph-dim); }
+
+.ll { display: block; animation: fadeIn .2s; }
+.lts { color: var(--dim); margin-right: 6px; font-size: 10px; }
+.lhi { color: var(--ph); }
+.lam { color: var(--am); }
+.ler { color: var(--red); }
+
+/* ── SIDEBAR ── */
+.sblock {
+  border-bottom: 1px solid var(--bd);
+  padding: 13px 15px;
+}
+.sblock:last-child { border-bottom: none; }
+.slabel {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--dim);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--bd);
+  padding-bottom: 5px;
+  margin-bottom: 9px;
+}
+
+/* EM bars */
+.em-row { margin-bottom: 7px; }
+.em-lbl {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  margin-bottom: 3px;
+}
+.em-lbl span { color: var(--ph-dim); }
+.em-track {
+  height: 6px;
+  background: #010a02;
+  border: 1px solid var(--bd);
+  overflow: hidden;
+}
+.em-fill {
+  height: 100%;
+  background: var(--ph-dim);
+  box-shadow: 0 0 5px var(--ph-dim);
+  transition: width .7s;
+}
+.em-fill.am { background: var(--am-dim); box-shadow: 0 0 5px var(--am-dim); }
+
+/* EM waveform */
+.em-wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 36px;
+  margin-top: 9px;
+}
+.em-spike {
+  flex: 1;
+  background: var(--ph-dim);
+  box-shadow: 0 0 3px var(--ph-dim);
+  min-height: 2px;
+  transition: height .5s;
+}
+
+/* Roster */
+.roster-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  padding: 4px 0;
+  border-bottom: 1px dotted var(--ph-faint);
+  color: var(--dim);
+}
+.roster-row:last-child { border-bottom: none; }
+.rname { color: var(--ph-dim); letter-spacing: 1px; }
+
+/* Terminal open button */
+.term-open-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid var(--bd);
+  color: var(--ph-dim);
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+}
+.term-open-btn:hover {
+  border-color: var(--ph-dim);
+  color: var(--ph);
+  box-shadow: 0 0 12px rgba(77,255,124,.08);
+}
+
+/* ── FOOTER ── */
+.s-footer {
+  border: 1px solid var(--bd);
+  border-top: none;
+  background: var(--panel);
+  padding: 7px 18px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+}
+.footer-hint { animation: blink 2.4s infinite; cursor: default; }
+
+/* ═══════════════════════════════════════
+   TERMINAL MODAL
+   ═══════════════════════════════════════ */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+}
+.overlay.open { display: flex; }
+
+.term-win {
+  width: 760px;
+  max-width: 97vw;
+  max-height: 88vh;
+  border: 1px solid var(--ph-dim);
+  background: #010a02;
+  box-shadow: 0 0 60px rgba(77,255,124,.18), 0 0 120px rgba(77,255,124,.05);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp .2s ease;
+}
+
+.term-tbar {
+  background: var(--ph-dim);
+  color: #000;
+  padding: 4px 14px;
+  font-size: 10px;
+  letter-spacing: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.term-tbar-close {
+  background: none;
+  border: none;
+  color: #000;
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.term-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px 20px 8px;
+  min-height: 280px;
+  max-height: 480px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ph-dim) #000;
+}
+.term-body::-webkit-scrollbar { width: 3px; }
+.term-body::-webkit-scrollbar-thumb { background: var(--ph-dim); }
+
+.term-out {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ph);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Terminal colour classes */
+.td  { color: var(--dim); }
+.tm  { color: var(--ph-dim); }
+.tb  { color: var(--ph); text-shadow: 0 0 5px var(--ph-dim); }
+.ta  { color: var(--am); }
+.tr  { color: var(--red); }
+.th  { color: var(--ph); letter-spacing: 2px; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Prompt row */
+.term-prompt-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid var(--bd);
+  padding: 9px 20px;
+  flex-shrink: 0;
+}
+.term-prompt-str {
+  color: var(--ph-mid);
+  font-size: 16px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-shadow: 0 0 5px var(--ph-dim);
+  letter-spacing: 1px;
+}
+.term-inp {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ph);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  caret-color: var(--ph);
+  text-shadow: 0 0 5px var(--ph-dim);
+}
+
+/* ── MANIFEST MODAL ── */
+.manifest-body {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 72vh;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--ph-dim);
+}
+.manifest-body h2 {
+  color: var(--am);
+  letter-spacing: 3px;
+  font-size: 15px;
+  margin-bottom: 12px;
+  font-weight: normal;
+}
+.manifest-body p { margin-bottom: 12px; }
+.mbox {
+  border: 1px solid var(--bd2);
+  padding: 14px;
+  margin: 14px 0;
+  background: #000;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+/* ── SECRET BANNER ── */
+#secBanner {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: var(--am-dim);
+  color: var(--am);
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 13px;
+  letter-spacing: 3px;
+  z-index: 99997;
+  animation: slideUp .3s ease;
+  border-bottom: 1px solid var(--am-dim);
+}
+#secBanner.on { display: block; }
+
+/* ── FLASH OVERLAYS ── */
+#flashOK  { display:none; position:fixed; inset:0; background:rgba(77,255,124,.05); pointer-events:none; z-index:9000; }
+#flashERR { display:none; position:fixed; inset:0; background:rgba(255,34,0,.04); pointer-events:none; z-index:9001; }
+
+/* ── HIDDEN EYE ── */
+#eye {
+  position: fixed;
+  bottom: 14px;
+  right: 18px;
+  font-size: 9px;
+  color: var(--bd);
+  cursor: pointer;
+  opacity: .22;
+  transition: opacity .5s, color .5s;
+  z-index: 500;
+  line-height: 1.25;
+  white-space: pre;
+  font-family: monospace;
+  user-select: none;
+}
+#eye:hover { opacity: .9; color: var(--am); }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+<div id="flashOK"></div>
+<div id="flashERR"></div>
+<div id="secBanner"></div>
+
+<!-- ═══════════════════════════════ HIDDEN EYE ══ -->
+<div id="eye" onclick="eyeClick()"> /|\
+(0-0)
+ \_/</div>
+
+<!-- ═══════════════════════════════ SPLASH ═══════ -->
+<div id="splash" onclick="dismissSplash()">
+  <!-- Swan Station SVG logo from Logo.tsx, adapted with DHARMA ring -->
+  <svg class="sp-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- Outer ring -->
+    <circle cx="50" cy="50" r="47" fill="#000" stroke="#4dff7c" stroke-width="1.2"/>
+    <!-- Tick marks around ring -->
+    <g stroke="#4dff7c" stroke-width=".8" opacity=".45">
+      <line x1="50" y1="4"  x2="50" y2="10"/>
+      <line x1="50" y1="90" x2="50" y2="96"/>
+      <line x1="4"  y1="50" x2="10" y2="50"/>
+      <line x1="90" y1="50" x2="96" y2="50"/>
+      <line x1="18.3" y1="12.9" x2="21.7" y2="18.9"/>
+      <line x1="81.7" y1="12.9" x2="78.3" y2="18.9"/>
+      <line x1="12.9" y1="18.3" x2="18.9" y2="21.7"/>
+      <line x1="87.1" y1="18.3" x2="81.1" y2="21.7"/>
+      <line x1="12.9" y1="81.7" x2="18.9" y2="78.3"/>
+      <line x1="87.1" y1="81.7" x2="81.1" y2="78.3"/>
+      <line x1="18.3" y1="87.1" x2="21.7" y2="81.1"/>
+      <line x1="81.7" y1="87.1" x2="78.3" y2="81.1"/>
+    </g>
+    <!-- Inner guide ring -->
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#4dff7c" stroke-width=".5" opacity=".25"/>
+    <!-- Swan body — elongated teardrop from Logo.tsx -->
+    <path d="M50 15 C60 26, 66 40, 64 55 C62 68, 57 76, 50 86 C43 76, 38 68, 36 55 C34 40, 40 26, 50 15Z"
+          fill="#4dff7c" opacity=".92"/>
+    <!-- Neck shadow -->
+    <path d="M50 15 C54 23, 58 33, 57 44 C56 53, 53 57, 50 62"
+          fill="none" stroke="#000" stroke-width="3" opacity=".55"/>
+    <!-- Body void -->
+    <ellipse cx="50" cy="56" rx="8" ry="12" fill="#000"/>
+    <!-- Text ring simulation -->
+    <circle cx="50" cy="50" r="30" fill="none" stroke="#4dff7c" stroke-width=".3" opacity=".18"/>
+  </svg>
+
+  <div class="sp-title">THE SWAN</div>
+  <div class="sp-sub">DHARMA INITIATIVE — STATION 3 OF 6 — EST. 1980</div>
+
+  <div class="sp-boot" id="spBoot">
+    <span style="color:var(--ph-dim)">INTRANET NODE SWN-7 — BOOT SEQUENCE v6.1.1</span><br>
+    <span id="bl1"></span>
+    <span id="bl2"></span>
+    <span id="bl3"></span>
+    <span id="bl4"></span>
+    <span id="bl5"></span>
+  </div>
+
+  <div class="sp-press" id="spPress" style="display:none">[ PRESS ANY KEY OR CLICK TO CONTINUE ]</div>
+</div>
+
+<!-- ═══════════════════════════════ HIEROGLYPHS ══ -->
+<div id="hieroScreen">
+  <div class="hiero-box">
+    <div class="hiero-top">SYS:FAIL — EM DISCHARGE DETECTED</div>
+    <div class="hiero-drum">
+      <div class="hiero-col" id="hcA">
+        <div class="h-glyph">𓆣</div><!-- scarab -->
+        <div class="h-glyph">𓂀</div><!-- eye of horus -->
+        <div class="h-glyph">𓇳</div><!-- sun disk -->
+        <div class="h-glyph">𓅓</div><!-- owl -->
+        <div class="h-glyph">𓆙</div><!-- snake -->
+        <div class="h-glyph">𓆣</div>
+        <div class="h-glyph">𓂀</div>
+        <div class="h-glyph">𓇳</div>
+      </div>
+      <div class="hiero-col" id="hcB">
+        <div class="h-glyph">𓇳</div>
+        <div class="h-glyph">𓆙</div>
+        <div class="h-glyph">𓂀</div>
+        <div class="h-glyph">𓆣</div>
+        <div class="h-glyph">𓅓</div>
+        <div class="h-glyph">𓇳</div>
+        <div class="h-glyph">𓆙</div>
+        <div class="h-glyph">𓂀</div>
+      </div>
+    </div>
+    <div class="hiero-bot">SYSTEM FAILURE :: CONTAINMENT LOST</div>
+  </div>
+  <div class="hiero-msg">!! EM CONTAINMENT FAILURE !!</div>
+  <div class="hiero-sub">INPUT SEQUENCE WAS NOT EXECUTED IN TIME</div>
+  <button class="hiero-btn" onclick="resetFailure()">[ EMERGENCY RESET — PROTOCOL 23B ]</button>
+</div>
+
+<!-- ═══════════════════════════════ COUNTDOWN ════ -->
+<div id="cdWidget">
+  <div class="cd-label">TIME REMAINING</div>
+  <div class="cd-bezel" id="cdBezel">
+    <div style="display:flex;gap:2px" id="cdMinGrp">
+      <div class="cd-dig"><span id="dm0">1</span></div>
+      <div class="cd-dig"><span id="dm1">0</span></div>
+      <div class="cd-dig"><span id="dm2">8</span></div>
+    </div>
+    <div class="cd-colon" id="cdColon">:</div>
+    <div style="display:flex;gap:2px">
+      <div class="cd-dig"><span id="ds0">0</span></div>
+      <div class="cd-dig"><span id="ds1">0</span></div>
+    </div>
+  </div>
+  <div class="cd-status" id="cdStatus">PROTOCOL 23 ACTIVE</div>
+</div>
+
+<!-- ═══════════════════════════════ MAIN CONTENT ═ -->
+<div id="mainContent">
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="s-hdr">
+    <div class="hdr-l">
+      <div class="station">DHARMA INITIATIVE &nbsp;·&nbsp; SWAN STATION</div>
+      <div class="node">INTRANET NODE SWN-7 &nbsp;·&nbsp; SUBLEVEL B &nbsp;·&nbsp; CLEARANCE 4</div>
+    </div>
+    <div class="hdr-c">
+      <svg class="swan-logo-sm" viewBox="0 0 100 100" onclick="openManifest()" title="Open Station Manifest">
+        <circle cx="50" cy="50" r="47" fill="#000" stroke="#4dff7c" stroke-width="1.5"/>
+        <path d="M50 15 C60 26, 66 40, 64 55 C62 68, 57 76, 50 86 C43 76, 38 68, 36 55 C34 40, 40 26, 50 15Z"
+              fill="#4dff7c" opacity=".88"/>
+        <ellipse cx="50" cy="56" rx="8" ry="12" fill="#000"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#4dff7c" stroke-width=".5" opacity=".25"/>
+      </svg>
+    </div>
+    <div class="hdr-r">
+      <div class="hdr-clock" id="hdrClock">--:--:--</div>
+      <div class="hdr-cycle" id="cycleTag" onclick="cycleClick()">CYCLE: <span id="cycleNum">10894</span></div>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker" id="broadcastBar" onclick="tickerClick()">
+    <span class="ticker-tag">BROADCAST</span>
+    <div class="ticker-scroll">
+      <span class="ticker-inner">
+        STATION STATUS: NOMINAL &nbsp;&middot;&nbsp; PROTOCOL 23 ACTIVE &nbsp;&middot;&nbsp; OPERATOR ON DUTY &nbsp;&middot;&nbsp; SONAR ARRAY: DEGRADED &nbsp;&middot;&nbsp; EXTERNAL COMMS RESTRICTED (§7-B) &nbsp;&middot;&nbsp; DO NOT LEAVE THE STATION &nbsp;&middot;&nbsp; EM FIELD: CONTAINED &nbsp;&middot;&nbsp; PNEUMATIC DISPATCH: OPERATIONAL &nbsp;&middot;&nbsp; NEXT RELIEF: 540 HOURS &nbsp;&middot;&nbsp; INCIDENT 4-23-1980: REMAINS CLASSIFIED &nbsp;&middot;&nbsp; QUARANTINE PROTOCOL: ACTIVE &nbsp;&middot;&nbsp; ALL TERMINAL SESSIONS LOGGED &nbsp;&middot;&nbsp;
+      </span>
+    </div>
+  </div>
+
+  <!-- MORSE — encodes "THE NUMBERS ARE REAL" -->
+  <div class="morse" id="morseBar" onclick="morseClick()">
+    &minus; &middot;&middot;&middot;&middot; &middot; &nbsp; &middot;&minus;&middot; &middot;&minus;&middot;&minus;&middot;&minus; &middot;&minus;&middot;&minus;&middot;&minus; &nbsp; &minus;&minus;&minus; &middot;&minus;&middot;&minus;&middot;&minus; &minus;&middot;&minus;&minus; &middot;&minus;&minus; &minus;&minus;&minus; &middot;&minus;&middot;&minus;&middot;&minus; &nbsp; &minus;&middot;&minus; &middot;&minus;&middot;&minus;&middot;&minus; &minus;&middot;&middot; &minus;&minus;&minus;&minus; &middot;&minus;&middot;&minus;&middot;&minus; &nbsp; &minus;&middot;&middot;&middot; &middot;&minus; &minus;&middot;&middot;&middot;&middot; &middot;&minus;&middot; &minus;&middot;&minus;&middot; &minus;&middot;&middot;&middot;&middot;
+  </div>
+
+  <!-- CIPHER — ROT13 of "EXECUTE THE PROTOCOL · MAINTAIN SILENCE · DO NOT LEAVE THE STATION · -I.P." -->
+  <div class="cipher" id="cipherBar" onclick="cipherClick()">
+    [ROT13]: RKRPHGR GUR CEBGBPBY &middot; ZNVAGNVA FVYRAPR &middot; QB ABG YRNIR GUR FGNGVBA &middot; -V.C.
+  </div>
+
+  <!-- BODY GRID -->
+  <div class="body-grid">
+
+    <!-- LEFT MAIN COLUMN -->
+    <div class="col-main">
+
+      <!-- INPUT TERMINAL -->
+      <div class="pblock">
+        <div class="plabel">
+          INPUT TERMINAL — PROTOCOL 23
+          <span class="plabel-r">WINDOW CLOSES: SEE TIMER ↗</span>
+        </div>
+        <div class="input-note">
+          ENTER AUTHORISED NUMERIC SEQUENCE BEFORE WINDOW CLOSES.<br>
+          ALL SIX VALUES REQUIRED. EXECUTE WHEN READY.
+        </div>
+        <div class="num-row">
+          <input class="nf" type="number" id="n1" placeholder="—" min="0" max="99" tabindex="1">
+          <span class="nsep">·</span>
+          <input class="nf" type="number" id="n2" placeholder="—" min="0" max="99" tabindex="2">
+          <span class="nsep">·</span>
+          <input class="nf" type="number" id="n3" placeholder="—" min="0" max="99" tabindex="3">
+          <span class="nsep">·</span>
+          <input class="nf" type="number" id="n4" placeholder="—" min="0" max="99" tabindex="4">
+          <span class="nsep">·</span>
+          <input class="nf" type="number" id="n5" placeholder="—" min="0" max="99" tabindex="5">
+          <span class="nsep">·</span>
+          <input class="nf" type="number" id="n6" placeholder="—" min="0" max="99" tabindex="6">
+        </div>
+        <button class="exec-btn" onclick="execNums()"><span>EXECUTE</span></button>
+        <div class="exec-note">AUTHORISED PERSONNEL ONLY — ALL INPUTS ARE LOGGED AND TIMESTAMPED</div>
+      </div>
+
+      <!-- SYSTEM STATUS -->
+      <div class="pblock">
+        <div class="plabel">
+          SYSTEM STATUS
+          <span class="plabel-r" id="statTs">LAST UPDATE: --:--</span>
+        </div>
+        <table class="stat-table">
+          <tr><td class="sk">EM CONTAINMENT</td><td class="sv so" id="stEM">CONTAINED</td></tr>
+          <tr><td class="sk">FAILSAFE KEY</td><td class="sv so">ARMED</td></tr>
+          <tr><td class="sk">INTRANET NODE</td><td class="sv so">SWN-7 ACTIVE</td></tr>
+          <tr><td class="sk">SONAR ARRAY</td><td class="sv sw">DEGRADED</td></tr>
+          <tr><td class="sk">PNEUMATIC DISPATCH</td><td class="sv so">OPERATIONAL</td></tr>
+          <tr><td class="sk">EM ANOMALY</td><td class="sv sw" id="stAnomaly">STABLE</td></tr>
+          <tr><td class="sk">QUARANTINE STATUS</td><td class="sv so">ACTIVE</td></tr>
+          <tr><td class="sk">SEQUENCES LOGGED</td><td class="sv sd" id="stSeq">10,983</td></tr>
+          <tr><td class="sk">PROTOCOL VERSION</td><td class="sv sd">v6.1.1</td></tr>
+        </table>
+      </div>
+
+      <!-- ACTIVITY LOG -->
+      <div class="pblock">
+        <div class="plabel">ACTIVITY LOG <span class="plabel-r">CURRENT SESSION</span></div>
+        <div class="log-out" id="logOut"></div>
+      </div>
+
+      <!-- INCIDENT ARCHIVE -->
+      <div class="pblock">
+        <div class="plabel">INCIDENT ARCHIVE <span class="plabel-r">RECENT CYCLES</span></div>
+        <table class="stat-table">
+          <tr><td class="sk">CYCLE 10881</td><td class="sv sw">LATE INPUT (T+4 MIN)</td></tr>
+          <tr><td class="sk">CYCLE 10876</td><td class="sv so">NOMINAL</td></tr>
+          <tr><td class="sk">CYCLE 10849</td><td class="sv se">ANOMALY CLASS X</td></tr>
+          <tr><td class="sk">CYCLE 10801</td><td class="sv se" title="ORDER V.K.">██████ REDACTED</td></tr>
+          <tr><td class="sk">CYCLE 10734</td><td class="sv sw">POWER SURGE</td></tr>
+          <tr><td class="sk">1980-04-23</td><td class="sv se">THE INCIDENT</td></tr>
+        </table>
+      </div>
+
+    </div><!-- /col-main -->
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="col-side">
+
+      <!-- EM READINGS -->
+      <div class="sblock">
+        <div class="slabel">EM READINGS — LIVE</div>
+        <div class="em-row">
+          <div class="em-lbl">GAUSS (SUB-B) <span id="gaussPct">73%</span></div>
+          <div class="em-track"><div class="em-fill am" id="gaussFill" style="width:73%"></div></div>
+        </div>
+        <div class="em-row">
+          <div class="em-lbl">CORE PRESSURE <span id="pressPct">45%</span></div>
+          <div class="em-track"><div class="em-fill" id="pressFill" style="width:45%"></div></div>
+        </div>
+        <div class="em-row">
+          <div class="em-lbl">THERMAL (SUB-C) <span id="thermPct">31%</span></div>
+          <div class="em-track"><div class="em-fill" id="thermFill" style="width:31%"></div></div>
+        </div>
+        <div class="em-wave" id="emWave"></div>
+      </div>
+
+      <!-- STATION ROSTER -->
+      <div class="sblock">
+        <div class="slabel">ROSTER — CURRENT ROTATION</div>
+        <div class="roster-row"><span class="rname">WICKMUND, G.</span><span>CHIEF</span></div>
+        <div class="roster-row"><span class="rname">CANDLE, M.</span><span>TECH OFF.</span></div>
+        <div class="roster-row"><span class="rname">[CLASSIFIED]</span><span>OPERATOR A</span></div>
+        <div class="roster-row"><span class="rname">[CLASSIFIED]</span><span>OPERATOR B</span></div>
+        <div class="roster-row"><span class="rname" style="color:var(--am)">RELIEF ETA</span><span style="color:var(--am)">540 HRS</span></div>
+      </div>
+
+      <!-- TERMINAL ACCESS -->
+      <div class="sblock">
+        <div class="slabel">SECURE TERMINAL</div>
+        <div style="font-size:10px;color:var(--dim);letter-spacing:1px;line-height:1.8;margin-bottom:4px;">
+          ACCESS STATION FILES,<br>SYSTEM COMMANDS,<br>AND CLASSIFIED RECORDS.
+        </div>
+        <button class="term-open-btn" onclick="openTerminal()">OPEN TERMINAL ▶</button>
+      </div>
+
+      <!-- COMM LINK -->
+      <div class="sblock">
+        <div class="slabel">INTER-STATION COMMS</div>
+        <div class="roster-row"><span>FLAME (COMMS)</span><span style="color:var(--red)">NO ROUTE</span></div>
+        <div class="roster-row"><span>PEARL (OBS)</span><span style="color:var(--am)">TIMEOUT</span></div>
+        <div class="roster-row"><span>STAFF (MED)</span><span style="color:var(--red)">NO ROUTE</span></div>
+        <div class="roster-row"><span>ORCHID</span><span style="color:var(--red)">REFUSED</span></div>
+        <div class="roster-row"><span>EXTERNAL</span><span style="color:var(--red)">BLOCKED §7-B</span></div>
+      </div>
+
+    </div><!-- /col-side -->
+  </div><!-- /body-grid -->
+
+  <!-- FOOTER -->
+  <div class="s-footer">
+    <div>DHARMA INITIATIVE &copy; 1977&ndash;2004 &nbsp;·&nbsp; ALL SESSIONS MONITORED &nbsp;·&nbsp; UNAUTHORISED ACCESS PROSECUTED</div>
+    <div class="footer-hint" id="footerHint">[ ↑↑↓↓←→←→ ]</div>
+  </div>
+
+</div><!-- /wrap -->
+</div><!-- /mainContent -->
+
+<!-- ═══════════════════════════════ TERMINAL MODAL ═ -->
+<div class="overlay" id="termOverlay">
+  <div class="term-win">
+    <div class="term-tbar">
+      <span>DHARMA INTRANET :: SECURE TERMINAL :: SWN-7 :: v6.1.1</span>
+      <button class="term-tbar-close" onclick="closeTerminal()">[ CLOSE ]</button>
+    </div>
+    <div class="term-body">
+      <div class="term-out" id="termOut"></div>
+    </div>
+    <div class="term-prompt-row">
+      <span class="term-prompt-str">&gt;:&nbsp;</span>
+      <input class="term-inp" id="termInp" type="text" autocomplete="off" spellcheck="false"
+             placeholder="type command..." onkeydown="termKey(event)">
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ MANIFEST MODAL ═ -->
+<div class="overlay" id="manifestOverlay">
+  <div class="term-win">
+    <div class="term-tbar">
+      <span>SWAN STATION :: STATION MANIFEST :: CLEARANCE 4</span>
+      <button class="term-tbar-close" onclick="closeManifest()">[ CLOSE ]</button>
+    </div>
+    <div class="manifest-body">
+      <h2>DHARMA INITIATIVE — STATION 3 OF 6 — "THE SWAN"</h2>
+      <div style="font-size:10px;color:var(--dim);margin-bottom:12px;letter-spacing:2px;">
+        DOC: DI-SWN-MAN-001 &nbsp;·&nbsp; REV: 14 &nbsp;·&nbsp; CLASSIFICATION: INTERNAL USE ONLY
+      </div>
+      <p>The SWAN station was established in 1980 following the INCIDENT of April 23rd. The station's primary function is the controlled release of electromagnetic energy buildup through a designated operator input sequence administered via this terminal every 108 minutes.</p>
+      <p>PROTOCOL 23: Every 108 minutes, the designated operator must input the authorised numeric sequence into the Input Terminal. Failure to execute within the window will result in uncontrolled electromagnetic discharge.</p>
+      <div class="mbox">
+        <div style="color:var(--am);letter-spacing:2px;margin-bottom:8px;font-size:12px;">AUTHORISED SEQUENCE — EYES ONLY — LEVEL 4:</div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:6px;">The sequence consists of six two-digit values. They are to be memorised and never recorded in written form. Consult the orientation materials or your station chief if the sequence has been lost.</div>
+        <div style="font-size:10px;color:var(--dim);border-top:1px solid var(--bd);padding-top:8px;margin-top:8px;">HINT: The terminal can help. The sequence is derivable. Begin with <span style="color:var(--ph-dim)">HELP</span>.</div>
+      </div>
+      <p>The origin of the sequence is documented in the Valenzetti Equation (ref: Special Projects file VK-108). The numbers represent core environmental and human factors whose values, if unchanged, lead to a specific outcome. Their meaning beyond this station's function is not the concern of station personnel.</p>
+      <p style="color:var(--am);">NOTE FROM V. KELVIN, SR. TECH OFFICER (CYCLE 9341): Do not attempt to determine what happens if the sequence is not entered. Trust the protocol. Do not leave the station. Do not go outside. <em>Do not look at the sky on a clear night.</em></p>
+      <div style="font-size:10px;color:var(--dim);border-top:1px solid var(--bd);padding-top:8px;margin-top:10px;">
+        DOCUMENT ENDS — IF FOUND BY UNAUTHORISED PERSONNEL: RETURN TO CHIEF WICKMUND — DI PROPERTY
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     JAVASCRIPT
+     ════════════════════════════════════════════════════ -->
+<script>
+/* ─────────────────────────────────────────
+   DHARMA INITIATIVE — SWN-7 — INTRANET v6.1.1
+   ENGINEER: CANDLE, M.
+   CLASSIFICATION: INTERNAL
+   ───────────────────────────────────────── */
+
+const THE_NUMBERS = [4, 8, 15, 16, 23, 42];
+const TOTAL_SECS  = 108 * 60;
+
+let secsLeft     = TOTAL_SECS;
+let timerRunning = false;
+let timerTick    = null;
+let execCount    = 0;
+let konamiIdx    = 0;
+let morseClicks  = 0;
+let cipherClicks = 0;
+let eyeHit       = false;
+let termReady    = false;
+let logoClicks   = 0;
+
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+
+/* ═════════════════════════════════════
+   SPLASH BOOT SEQUENCE
+   ═════════════════════════════════════ */
+const BOOT_LINES = [
+  {t:600,  cls:'',    txt:'Initialising kernel... <span class="ok">OK</span>'},
+  {t:1100, cls:'',    txt:'Loading Protocol 23 module... <span class="ok">OK</span>'},
+  {t:1700, cls:'',    txt:'EM containment check... <span class="ok">CONTAINED</span>'},
+  {t:2300, cls:'warn',txt:'Sonar array: <span class="warn">DEGRADED</span> (-3dB) — non-critical'},
+  {t:3000, cls:'',    txt:'Establishing intranet node SWN-7... <span class="ok">ACTIVE</span>'},
+  {t:3700, cls:'',    txt:'External routing: <span class="err">BLOCKED</span> (§7-B) — expected'},
+];
+
+function runBoot() {
+  BOOT_LINES.forEach((l, i) => {
+    setTimeout(() => {
+      const el = document.getElementById('bl' + (i+1));
+      if (el) el.innerHTML = l.txt + '<br>';
+    }, l.t);
+  });
+  setTimeout(() => {
+    document.getElementById('spPress').style.display = 'block';
+    document.addEventListener('keydown', dismissSplash, {once: true});
+  }, 4200);
+}
+
+function dismissSplash() {
+  document.removeEventListener('keydown', dismissSplash);
+  const splash = document.getElementById('splash');
+  splash.classList.add('fade-out');
+  setTimeout(() => {
+    splash.style.display = 'none';
+    document.getElementById('cdWidget').style.display = 'flex';
+    const mc = document.getElementById('mainContent');
+    mc.style.display = 'block';
+    setTimeout(() => mc.classList.add('visible'), 30);
+    startTimer();
+    bindInputs();
+    addLog('Intranet session started. Welcome, Operator.', 'hi');
+    addLog('Protocol 23 active. Input sequence required before window closes.', '');
+    setTimeout(() => addLog('Sonar non-critical degradation noted. All other systems nominal.', 'am'), 1800);
+    setTimeout(() => addLog('Open the Secure Terminal for station files and commands.', ''), 3500);
+  }, 1300);
+}
+
+runBoot();
+
+/* ═════════════════════════════════════
+   CLOCK
+   ═════════════════════════════════════ */
+function clockTick() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const el = document.getElementById('hdrClock');
+  if (el) el.textContent = h+':'+m+':'+s;
+}
+setInterval(clockTick, 1000);
+clockTick();
+
+/* ═════════════════════════════════════
+   COUNTDOWN TIMER
+   ═════════════════════════════════════ */
+function renderTimer() {
+  const m = Math.floor(secsLeft / 60);
+  const s = secsLeft % 60;
+  const ms = String(m).padStart(3,'0');
+  const ss = String(s).padStart(2,'0');
+  document.getElementById('dm0').textContent = ms[0];
+  document.getElementById('dm1').textContent = ms[1];
+  document.getElementById('dm2').textContent = ms[2];
+  document.getElementById('ds0').textContent = ss[0];
+  document.getElementById('ds1').textContent = ss[1];
+
+  const bezel = document.getElementById('cdBezel');
+  bezel.classList.remove('warn','crit');
+
+  if (secsLeft <= 60) {
+    bezel.classList.add('crit');
+    document.getElementById('cdStatus').textContent = '!! CRITICAL !!';
+  } else if (secsLeft <= 300) {
+    bezel.classList.add('warn');
+    document.getElementById('cdStatus').textContent = 'INPUT REQUIRED SOON';
+  } else {
+    document.getElementById('cdStatus').textContent = 'PROTOCOL 23 ACTIVE';
+  }
+}
+
+function startTimer() {
+  timerRunning = true;
+  renderTimer();
+  timerTick = setInterval(() => {
+    if (!timerRunning) return;
+    if (secsLeft > 0) {
+      secsLeft--;
+      renderTimer();
+      if (secsLeft === 300) addLog('WARNING: 5 minutes remaining. Input required.', 'am');
+      if (secsLeft === 60)  {
+        addLog('CRITICAL: 60 seconds. EM levels escalating rapidly.', 'er');
+        document.getElementById('stEM').textContent = 'CRITICAL';
+        document.getElementById('stEM').className = 'sv se';
+        document.getElementById('stAnomaly').textContent = 'UNSTABLE';
+        document.getElementById('stAnomaly').className = 'sv se';
+      }
+      if (secsLeft === 10)  addLog('!! EXECUTE SEQUENCE NOW !!', 'er');
+    } else {
+      clearInterval(timerTick);
+      timerRunning = false;
+      triggerFailure();
+    }
+  }, 1000);
+}
+
+/* ═════════════════════════════════════
+   FAILURE SEQUENCE — HIEROGLYPHS
+   ═════════════════════════════════════ */
+function triggerFailure() {
+  addLog('!! CONTAINMENT FAILURE — SEQUENCE NOT EXECUTED — EM DISCHARGE DETECTED !!', 'er');
+  // Brief red flash then show hieroglyphs
+  let f = 0;
+  const flashInt = setInterval(() => {
+    document.body.style.background = f % 2 === 0 ? '#0a0000' : '#010a02';
+    f++;
+    if (f > 6) {
+      clearInterval(flashInt);
+      document.body.style.background = '';
+      document.getElementById('hieroScreen').classList.add('active');
+    }
+  }, 180);
+}
+
+function resetFailure() {
+  document.getElementById('hieroScreen').classList.remove('active');
+  // Restore EM status
+  document.getElementById('stEM').textContent = 'CONTAINED';
+  document.getElementById('stEM').className = 'sv so';
+  document.getElementById('stAnomaly').textContent = 'STABLE';
+  document.getElementById('stAnomaly').className = 'sv sw';
+  document.getElementById('cdBezel').classList.remove('warn','crit');
+  // Reset timer
+  secsLeft = TOTAL_SECS;
+  renderTimer();
+  addLog('Emergency reset executed. Protocol 23B invoked. New window open.', 'am');
+  addLog('Input sequence IMMEDIATELY to prevent further discharge.', 'er');
+  timerRunning = true;
+  timerTick = setInterval(() => {
+    if (!timerRunning) return;
+    if (secsLeft > 0) { secsLeft--; renderTimer(); }
+    else { clearInterval(timerTick); timerRunning = false; triggerFailure(); }
+  }, 1000);
+}
+
+/* ═════════════════════════════════════
+   NUMBER EXECUTION
+   ═════════════════════════════════════ */
+function execNums() {
+  const ids = ['n1','n2','n3','n4','n5','n6'];
+  const vals = ids.map(id => {
+    const v = parseInt(document.getElementById(id).value);
+    return isNaN(v) ? null : v;
+  });
+
+  if (vals.some(v => v === null)) {
+    addLog('INPUT ERROR: All six values required.', 'er');
+    shakeRow();
+    return;
+  }
+
+  const correct = vals.every((v, i) => v === THE_NUMBERS[i]);
+
+  if (correct) {
+    onSuccess(vals);
+  } else {
+    const matches = vals.filter((v,i) => v === THE_NUMBERS[i]).length;
+    onWrong(vals, matches);
+  }
+}
+
+function onSuccess(vals) {
+  execCount++;
+  clearInterval(timerTick);
+  timerRunning = false;
+
+  // Green flash
+  const f = document.getElementById('flashOK');
+  f.style.display = 'block';
+  setTimeout(() => f.style.display = 'none', 700);
+
+  // Reset countdown
+  secsLeft = TOTAL_SECS;
+  renderTimer();
+  document.getElementById('cdBezel').classList.remove('warn','crit');
+  document.getElementById('cdStatus').textContent = 'PROTOCOL 23 ACTIVE';
+
+  addLog('SEQUENCE ACCEPTED — DISCHARGE PREVENTED. Cycle complete.', 'hi');
+  addLog('Next input window: 108:00 minutes.', '');
+
+  // Reset EM status
+  document.getElementById('stEM').textContent = 'CONTAINED';
+  document.getElementById('stEM').className = 'sv so';
+  document.getElementById('stAnomaly').textContent = 'STABLE';
+  document.getElementById('stAnomaly').className = 'sv sw';
+  document.getElementById('stSeq').textContent = (10983 + execCount).toLocaleString();
+
+  // EM bars drop
+  setBarAnim('gaussFill', 73, 20, 'gaussPct', true);
+  setBarAnim('pressFill', 45, 15, 'pressPct', false);
+  setBarAnim('thermFill', 31, 10, 'thermPct', false);
+
+  // Clear inputs with flash
+  const nids = ['n1','n2','n3','n4','n5','n6'];
+  nids.forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.className = 'nf ok';
+    setTimeout(() => el.className = 'nf', 900);
+  });
+
+  // ARG milestones
+  if (execCount === 3) showBanner('// ACHIEVEMENT UNLOCKED: THE CANDIDATE — 3 SEQUENCES EXECUTED //');
+  if (execCount === 108) showBanner('// DHARMA COMMENDATION: UNWAVERING DUTY — 108 SEQUENCES COMPLETE //');
+
+  // Restart after pause
+  setTimeout(() => {
+    timerRunning = true;
+    timerTick = setInterval(() => {
+      if (!timerRunning) return;
+      if (secsLeft > 0) { secsLeft--; renderTimer(); }
+      else { clearInterval(timerTick); timerRunning = false; triggerFailure(); }
+    }, 1000);
+  }, 3000);
+}
+
+function onWrong(vals, matches) {
+  const f = document.getElementById('flashERR');
+  f.style.display = 'block';
+  setTimeout(() => f.style.display = 'none', 500);
+  addLog(`SEQUENCE REJECTED — ${matches}/6 positions correct.`, 'er');
+  shakeRow();
+  const nids = ['n1','n2','n3','n4','n5','n6'];
+  nids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = vals[i] === THE_NUMBERS[i] ? 'nf ok' : 'nf bad';
+    setTimeout(() => el.className = 'nf', 1100);
+  });
+  // Special wrong sequences
+  if (vals.every(v => v === 0))
+    addLog('NULL SEQUENCE ENTRY: Do not enter zeros. This is not a test.', 'er');
+  if (vals[0] === 42 && vals[5] === 4)
+    addLog('ANOMALY: Inverted sequence detected. Cross-reference Incident 10801.', 'am');
+}
+
+function shakeRow() {
+  const row = document.querySelector('.num-row');
+  row.style.transform = 'translateX(-6px)';
+  setTimeout(() => row.style.transform = 'translateX(6px)', 80);
+  setTimeout(() => row.style.transform = 'translateX(-3px)', 160);
+  setTimeout(() => row.style.transform = '', 240);
+}
+
+// Auto-advance inputs — deferred until after splash dismissal
+function bindInputs() {
+  ['n1','n2','n3','n4','n5','n6'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', function() {
+      if (this.value.length >= 2) {
+        const ids = ['n1','n2','n3','n4','n5','n6'];
+        const next = ids[i+1];
+        if (next) document.getElementById(next).focus();
+        else this.blur();
+      }
+    });
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') execNums();
+      if (e.key === 'Backspace' && !this.value && i > 0)
+        document.getElementById(['n1','n2','n3','n4','n5','n6'][i-1]).focus();
+    });
+  });
+}
+
+/* ═════════════════════════════════════
+   LOG PANEL
+   ═════════════════════════════════════ */
+function addLog(msg, cls) {
+  const out = document.getElementById('logOut');
+  if (!out) return;
+  const now = new Date();
+  const ts  = `[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}]`;
+  const span = document.createElement('span');
+  span.className = 'll';
+  const msgCls = cls === 'hi' ? 'lhi' : cls === 'am' ? 'lam' : cls === 'er' ? 'ler' : '';
+  span.innerHTML = `<span class="lts">${ts}</span><span class="${msgCls}">${msg}</span>\n`;
+  out.appendChild(span);
+  out.scrollTop = out.scrollHeight;
+}
+
+/* ═════════════════════════════════════
+   EM WAVEFORM
+   ═════════════════════════════════════ */
+function buildWave() {
+  const w = document.getElementById('emWave');
+  w.innerHTML = '';
+  for (let i = 0; i < 22; i++) {
+    const b = document.createElement('div');
+    b.className = 'em-spike';
+    b.style.height = (Math.random() * 30 + 4) + 'px';
+    w.appendChild(b);
+  }
+}
+buildWave();
+setInterval(() => {
+  document.querySelectorAll('.em-spike').forEach(s => {
+    s.style.height = (Math.random() * 32 + 4) + 'px';
+  });
+}, 900);
+
+/* EM BAR ANIMATION */
+function setBarAnim(id, from, to, pctId, isAmber) {
+  let cur = from;
+  const step = (to - from) / 18;
+  const iv = setInterval(() => {
+    cur += step;
+    if ((step < 0 && cur <= to) || (step > 0 && cur >= to)) { cur = to; clearInterval(iv); }
+    const el = document.getElementById(id);
+    if (el) el.style.width = Math.round(cur) + '%';
+    const pe = document.getElementById(pctId);
+    if (pe) pe.textContent = Math.round(cur) + '%';
+  }, 80);
+}
+
+/* Gentle live EM drift */
+setInterval(() => {
+  const gf = document.getElementById('gaussFill');
+  const gp = document.getElementById('gaussPct');
+  if (gf) {
+    const v = Math.min(95, Math.max(18, parseFloat(gf.style.width) + (Math.random() - 0.48) * 2.5));
+    gf.style.width = v + '%';
+    if (gp) gp.textContent = Math.round(v) + '%';
+  }
+}, 2200);
+
+/* ═════════════════════════════════════
+   ARG INTERACTIONS
+   ═════════════════════════════════════ */
+// Morse — "THE NUMBERS ARE REAL" — click 5 times
+function morseClick() {
+  morseClicks++;
+  if (morseClicks === 5) {
+    const el = document.getElementById('morseBar');
+    el.textContent = '// DECODED: "THE NUMBERS ARE REAL" — V. KELVIN — CYCLE 9341 //';
+    el.style.color = 'var(--am)';
+    addLog('MORSE DECODED: "THE NUMBERS ARE REAL". You are paying attention.', 'am');
+    showBanner('// MORSE DECODED — "THE NUMBERS ARE REAL" — V.K. — Check the terminal. //');
+  }
+}
+
+// Cipher — ROT13 — click 3 times
+function cipherClick() {
+  cipherClicks++;
+  if (cipherClicks === 3) {
+    const el = document.getElementById('cipherBar');
+    el.textContent = '// ROT13 DECODED: "EXECUTE THE PROTOCOL · MAINTAIN SILENCE · DO NOT LEAVE THE STATION · -I.P." //';
+    el.style.color = 'var(--am)';
+    addLog('CIPHER DECODED: Message from I.P. — "Maintain silence."', 'am');
+  }
+}
+
+// Konami — defined BEFORE the listener that calls it
+function onKonami() {
+  window.cl5 = true;  // grant clearance 5
+  addLog('!!! KONAMI SEQUENCE — CLEARANCE LEVEL 5 GRANTED !!!', 'hi');
+  showBanner('// \u2191\u2191\u2193\u2193\u2190\u2192\u2190\u2192BA \u2014 CLEARANCE 5 GRANTED \u2014 READ /FILES/VK-108.TXT IN TERMINAL //');
+  openTerminal();
+  setTimeout(() => {
+    termPrint('\n<span class="ta">!! KONAMI SEQUENCE DETECTED !!</span>');
+    termPrint('<span class="tb">Operator clearance upgraded to Level 5.</span>');
+    termPrint('<span class="td">Unlocking classified archive: /files/vk-108.txt</span>');
+    termPrint('\nRun: <span class="tb">READ /FILES/VK-108.TXT</span>\n');
+  }, 400);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === KONAMI[konamiIdx]) {
+    konamiIdx++;
+    if (konamiIdx === KONAMI.length) {
+      konamiIdx = 0;
+      onKonami();
+    }
+  } else {
+    konamiIdx = 0;
+  }
+});
+
+// Hidden eye
+function eyeClick() {
+  if (!eyeHit) {
+    eyeHit = true;
+    addLog('// You found the Eye. The island is always watching. //','am');
+    showBanner('// THE EYE HAS SEEN YOU — Type DHARMA in the terminal. //');
+    const e = document.getElementById('eye');
+    e.style.color = 'var(--am)';
+    e.style.opacity = '0.9';
+  }
+}
+
+// Logo clicks
+function openManifest() {
+  logoClicks++;
+  document.getElementById('manifestOverlay').classList.add('open');
+  if (logoClicks === 7) {
+    addLog('NOTICE: Multiple manifest accesses. Operator flagged.', 'am');
+    showBanner('// Have you checked the bottom-right corner? Something is watching. //');
+  }
+}
+function closeManifest() {
+  document.getElementById('manifestOverlay').classList.remove('open');
+}
+
+// Cycle tag click (subtle ARG clue)
+function cycleClick() {
+  addLog('CYCLE 10894: If you read this, the previous operator did not complete their rotation.', 'am');
+}
+
+// Ticker click
+function tickerClick() {
+  addLog('BROADCAST: External communications remain blocked. No exceptions. §7-B.', '');
+}
+
+// Inactivity
+let lastAct = Date.now();
+['mousemove','keydown','click'].forEach(ev => document.addEventListener(ev, () => lastAct = Date.now()));
+setInterval(() => {
+  const idle = (Date.now() - lastAct) / 1000;
+  if (timerRunning) {
+    if (idle > 120 && idle < 125)
+      addLog('PRESENCE CHECK: Are you still there? Window closes in ' + Math.floor(secsLeft/60) + ' min.', 'am');
+    if (idle > 300 && idle < 305)
+      addLog('!! OPERATOR ABSENCE — ATTEND TO INPUT TERMINAL IMMEDIATELY !!', 'er');
+  }
+}, 5000);
+
+// Title flicker
+const TITLES = [
+  'DHARMA INITIATIVE :: SWAN STATION :: INTRANET NODE',
+  'DHARMA INITIATIVE :: SWAN STATION :: INTRANET NODE',
+  'DHARMA INITIATIVE :: SWAN STATION :: INTRANET NODE',
+  'DO NOT FORGET THE PROTOCOL',
+  'DHARMA INITIATIVE :: SWAN STATION :: INTRANET NODE',
+  'DHARMA INITIATIVE :: SWAN STATION :: INTRANET NODE',
+];
+let ti = 0;
+setInterval(() => { document.title = TITLES[ti++ % TITLES.length]; }, 10000);
+
+/* Secret banner */
+function showBanner(msg) {
+  const b = document.getElementById('secBanner');
+  b.textContent = msg;
+  b.classList.add('on');
+  clearTimeout(b._t);
+  b._t = setTimeout(() => b.classList.remove('on'), 7000);
+}
+
+/* ═════════════════════════════════════
+   TERMINAL
+   ═════════════════════════════════════ */
+const BOOT_MSG = '<span class="td">DHARMA INITIATIVE \u2014 SECURE TERMINAL v6.1.1\n'
+  + 'SWAN STATION \u2014 INTRANET NODE SWN-7 \u2014 SUBLEVEL B\n'
+  + '-----------------------------------------------\n'
+  + 'WARNING: All sessions are monitored and archived.\n'
+  + 'Unauthorised access referred to Mittelos Security.\n'
+  + '-----------------------------------------------\n'
+  + 'Type <span class="tb">HELP</span> for available commands.\n'
+  + '</span>';
+
+// All file paths upper-cased for matching
+const FILES = {
+  '/PROTOCOL/PROTOCOL-23.TXT': () => `<span class="th">PROTOCOL 23 — THE INPUT SEQUENCE</span>
+<span class="td">
+  Every 108 minutes the operator on duty must
+  enter the authorised numeric sequence.
+
+  THE SEQUENCE: Six values. Two digits each.
+  They are known to all authorised station
+  personnel. Consult your station chief or
+  the Orientation Reel if they have been lost.
+
+  Failure to input will result in:
+    Stage 1 — Audible alarm          (T−05:00)
+    Stage 2 — EM field degradation   (T−01:00)
+    Stage 3 — Containment failure    (T−00:00)
+    Stage 4 — <span class="tr">[SEE INCIDENT REPORT 4-23-1980]</span>
+
+</span><span class="td">  Protocol authored: H. DeGroot &amp; A. Hanso, 1977.
+  Last revision: M. Candle, Cycle 9100.</span>`,
+
+  '/LOGS/INCIDENT-4-23-1980.TXT': () => `<span class="th">INCIDENT REPORT — APRIL 23, 1980</span>
+<span class="td">  Classification: LEVEL 5 — RESTRICTED
+  Released version: partial — ORDER V.K.</span>
+
+  At 14:23 local time an uncontrolled
+  electromagnetic event occurred in Sub-level C
+  during scheduled equipment maintenance.
+
+  Casualties:     <span class="tr">[REDACTED]</span>
+  Equipment loss: <span class="tr">[REDACTED]</span>
+  Root cause:     <span class="tr">[REDACTED — ORDER V.K.]</span>
+
+<span class="ta">  RESULT: Protocol 23 implemented immediately.
+  Mandatory 108-minute input sequence established.
+  Swan Station reconfigured for indefinite
+  automated-operator occupation.</span>
+<span class="td">
+  NOTE: Do not discuss the Incident with
+  personnel who have not seen Orientation Reel 3.</span>`,
+
+  '/DHARMA/ORIENTATION-REEL-3.TXT': () => `<span class="th">ORIENTATION FILM 3 — TEXT TRANSCRIPT</span>
+<span class="td">  Host: Dr. Marvin Candle  /  Duration: 22 min
+  Copies: Request physical reel from Chief Wickmund</span>
+
+  "Hello. I'm Dr. Marvin Candle, and this is the
+  orientation film for Station 3 of the DHARMA
+  Initiative — The Swan.
+
+  In a moment you will be shown the living
+  quarters, the recreational facilities...
+  and the most important room in this station.
+
+  You and your partner will be conducting an
+  important experiment. You will observe and
+  record electromagnetic fluctuations in the
+  surrounding environment.
+
+  Every 108 minutes, you will enter a sequence
+  of numbers into the Intranet terminal.
+  Pushing this button is the most important
+  thing you will ever do.
+
+  <span class="ta">It may be the only important thing
+  you will ever do."</span>
+<span class="td">
+  [END OF TRANSCRIPT]</span>`,
+
+  '/LOGS/CYCLE-LOG-10894.TXT': () => `<span class="th">CYCLE LOG — 10894</span>
+
+  Input executed:     PENDING (current window)
+  EM level at open:   73% GAUSS (normal)
+  Sonar status:       DEGRADED (ongoing)
+  Anomaly reading:    STABLE
+  Pneumatic:          2 dispatches sent
+  Operator status:    ON DUTY
+<span class="td">
+  Previous cycle (10893): input at T−02:14
+  No anomalies reported.</span>`,
+
+  '/FILES/VK-108.TXT': () => {
+    // Only available after Konami OR if clearance5 set
+    if (!window.cl5) {
+      return `<span class="tr">ACCESS DENIED — CLEARANCE LEVEL 5 REQUIRED</span>
+<span class="td">
+  This file is above your current clearance.
+  There is a way to unlock it.
+  Pay attention to the interface around you.</span>`;
+    }
+    return `<span class="th">VALENZETTI EQUATION — SPECIAL PROJECTS FILE VK-108</span>
+<span class="td">  Author: Enzo Valenzetti, 1962
+  Classification: LEVEL 6 — RESTRICTED
+  Obtained: DHARMA Special Projects, 1977</span>
+
+  The Valenzetti Equation predicts the
+  precise date of human extinction as a
+  function of six core environmental and
+  human factors.
+
+  These factors are represented numerically.
+
+  The six values correspond to the input
+  sequence used in this station. The equation
+  does not require the actual values be kept
+  secret — only that they be entered on schedule.
+
+<span class="ta">  Entering the sequence does NOT change the
+  equation. It delays an electromagnetic event
+  that would accelerate one of the six factors.
+
+  You are not saving the world.
+  You are keeping the clock running
+  until someone figures out how to stop it.</span>
+<span class="td">
+  Sum of the six values: 108.
+  This is not a coincidence.
+  We are no longer sure coincidences occur here.
+
+  — V. Kelvin, Cycle 9341</span>`;
+  },
+
+  '/FILES/COORDINATES.TXT': () => {
+    if (!window.cl5) {
+      return `<span class="tr">ACCESS DENIED — CLEARANCE LEVEL 5 REQUIRED</span>`;
+    }
+    return `<span class="th">ISLAND COORDINATES — CLASSIFIED</span>
+<span class="td">  Access granted — Level 5</span>
+
+  POSITION:  4°48'N  108°42'W
+  MAGNETIC DECLINATION: 11.3° E (anomalous)
+  GRID REF: DHARMA INTERNAL MAP NODE 7
+
+<span class="ta">  These coordinates are not to be transmitted,
+  recorded on personal documents, or communicated
+  by any means outside the station.
+  §7-B applies unconditionally.</span>
+<span class="td">
+  If you have found this file from outside
+  the station, something has gone very wrong.
+  Contact Chief Wickmund immediately.</span>`;
+  },
+};
+
+const CMDS = {
+  'HELP': () => `<span class="th">AVAILABLE COMMANDS</span>
+<span class="td">  Documented:</span>
+  <span class="tb">STATUS</span>          System overview
+  <span class="tb">WHO</span>             Active personnel
+  <span class="tb">FILES</span>           List accessible files
+  <span class="tb">READ [path]</span>     Read a file (e.g. READ /protocol/protocol-23.txt)
+  <span class="tb">PING</span>            Test intranet node connections
+  <span class="tb">INCIDENT</span>        Incident archive summary
+  <span class="tb">DHARMA</span>          Station directory
+  <span class="tb">VALENZETTI</span>      Special Projects reference
+  <span class="tb">CLEAR</span>           Clear terminal output
+  <span class="tb">EXIT</span>            Close terminal
+<span class="td">
+  Note: Not all commands are documented.
+  Clearance level determines file access.</span>`,
+
+  'STATUS': () => `<span class="th">SYSTEM STATUS — CYCLE 10894</span>
+  EM Containment  . . . . CONTAINED
+  Failsafe Key    . . . . ARMED
+  Intranet Node   . . . . ACTIVE (SWN-7)
+  Sonar Array     . . . . <span class="ta">DEGRADED (−3dB)</span>
+  EM Anomaly      . . . . STABLE
+  Protocol        . . . . 23 ACTIVE v6.1.1
+  External Comms  . . . . <span class="tr">BLOCKED §7-B</span>
+  Quarantine      . . . . ACTIVE
+<span class="td">
+  Operator: present. Session logged.
+  Next relief: ~540 hours.</span>`,
+
+  'WHO': () => `<span class="th">ACTIVE PERSONNEL — CURRENT ROTATION</span>
+  WICKMUND, G.    . STATION CHIEF
+  CANDLE, M.      . TECHNICAL OFFICER
+  [CLASSIFIED]    . OPERATOR A
+  [CLASSIFIED]    . OPERATOR B
+<span class="td">
+  Relief rotation ETA: 540 hours.
+  Pneumatic dispatch active.
+  Outside contact: not permitted.</span>`,
+
+  'FILES': () => `<span class="th">ACCESSIBLE FILES — CLEARANCE 4</span>
+  /protocol/protocol-23.txt
+  /logs/incident-4-23-1980.txt        <span class="td">[PARTIAL — REDACTED]</span>
+  /logs/cycle-log-10894.txt
+  /dharma/orientation-reel-3.txt
+  <span class="ta">/files/vk-108.txt                   [CLEARANCE 5]</span>
+  <span class="ta">/files/coordinates.txt              [CLEARANCE 5]</span>
+<span class="td">
+  READ [path] to open a file.
+  Clearance 5 files require an unlock sequence.</span>`,
+
+  'PING': () => `<span class="th">PINGING INTRANET NODES...</span>
+  SWN-7  (self)       . . . OK    [0ms]
+  SWN-HUB (backbone)  . . . OK    [9ms]
+  PEARL-3 (obs)       . . . <span class="ta">TIMEOUT</span>
+  FLAME-1 (comms)     . . . <span class="tr">NO ROUTE</span>
+  STAFF-1 (medical)   . . . <span class="tr">NO ROUTE</span>
+  ORCHID  (unknown)   . . . <span class="tr">REFUSED</span>
+  WORLD   (external)  . . . <span class="tr">BLOCKED §7-B</span>
+<span class="td">
+  External routing is permanently disabled.
+  No signal enters or leaves the island.</span>`,
+
+  'INCIDENT': () => `<span class="th">INCIDENT ARCHIVE — SUMMARY</span>
+  Cycle 10881 . . LATE INPUT (T+4 min)
+  Cycle 10876 . . NOMINAL
+  Cycle 10849 . . ANOMALY CLASS X — EM spike +340%
+  Cycle 10801 . . <span class="tr">FULLY REDACTED — ORDER V.K.</span>
+  Cycle 10734 . . POWER SURGE — Sublevel B
+  Cycle 10110 . . Personal log discovered (VK-NOTE-9341)
+  1980-04-23  . . <span class="tr">THE INCIDENT — PARTIAL RELEASE ONLY</span>
+<span class="td">
+  READ /logs/incident-4-23-1980.txt for details.</span>`,
+
+  'DHARMA': () => `<span class="th">DHARMA INITIATIVE — STATION DIRECTORY</span>
+<span class="td">  Dept. of Heuristics And Research on Material Applications
+  Founded 1970 — Hanso Foundation / DeGroot Research, U. of Michigan</span>
+
+  KNOWN STATIONS:
+  Station 1: THE STAFF      (medical research)
+  Station 2: THE ARROW      (defence / storage)
+  Station 3: THE SWAN       <span class="tb">← YOU ARE HERE</span>
+  Station 4: THE FLAME      (communications hub)
+  Station 5: THE PEARL      (remote observation)
+  Station 6: THE ORCHID     <span class="tr">[EXISTENCE NOT CONFIRMED]</span>
+<span class="td">
+  Inter-station comms: via FLAME only.
+  FLAME currently unreachable (see PING).
+  Pearl observation logs: not accessible from SWN-7.</span>`,
+
+  'VALENZETTI': () => `<span class="th">VALENZETTI — REFERENCE SUMMARY</span>
+<span class="td">  Full file access requires Clearance 5.
+  READ /files/vk-108.txt after unlocking.</span>
+
+  The Valenzetti Equation, developed 1962,
+  models core factors that determine a
+  specific outcome for the human species.
+
+  The six values used in this station's
+  protocol correspond directly to those
+  core factors.
+<span class="ta">
+  The sum of the six values is 108.
+  The 108-minute input window is not arbitrary.</span>
+<span class="td">
+  To unlock the full file, pay attention
+  to what the interface shows you.</span>`,
+
+  'EXIT':  () => { closeTerminal(); return null; },
+  'CLEAR': () => { document.getElementById('termOut').innerHTML = ''; return null; },
+};
+
+// Hidden / undocumented
+const SECRETS = {
+  'HELLO':        () => `<span class="tb">Hello, Operator. Don't forget the protocol.</span>`,
+  'WHY':          () => `<span class="ta">That question is above your current clearance.</span>`,
+  'OUTSIDE':      () => `<span class="tr">DO NOT GO OUTSIDE. The quarantine is active.\nThis instruction is not precautionary.</span>`,
+  'QUARANTINE':   () => `<span class="ta">The outside air was last independently tested in 1987.
+  Protocol mandates internal operations only.
+  We have learned there are additional reasons
+  not to go outside.
+  They are not documented here.</span>`,
+  'FAILSAFE':     () => `<span class="tr">The failsafe key — Sub-level C, housing F-7.
+  Turning it will trigger uncontrolled discharge.
+  It is the absolute last resort.
+  Do not remove it from the housing.
+  If you are considering using it, you have
+  already failed at everything else.</span>`,
+  'SMOKE':        () => `<span class="ta">SONAR ANOMALY LOG — External entity:
+  Cycle 10201: Zone C — classification LARGE ORGANIC
+  Cycle 10445: Hatch exterior — LARGE ORGANIC
+  Cycle 10778: Eastern fence — UNKNOWN
+
+  Do not approach. Do not engage.
+  Close all external hatches immediately.
+  The anomaly has not breached the station
+  while Protocol 23 is maintained.
+  We do not know if this is causal.</span>`,
+  'JACOB':        () => `<span class="tr">!! THAT NAME IS NOT TO BE USED ON THIS INTRANET !!
+  Session has been flagged for security review.</span>`,
+  'PENNY':        () => '<span class="tm">"Not Penny\'s Boat."</span>\n<span class="td">  Log origin: unknown. Cycle: post-10800.\n  This phrase appears in two other redacted logs.\n  Cross-reference: abandoned.</span>',
+  'HURLEY':       () => `<span class="td">Personnel file: not found.
+  ...
+  Cross-referencing Numbers Origin Database...</span>
+<span class="ta">  Match: lottery ticket, 2004.
+  Values: match station protocol sequence.
+  Classification: Candidate event flag.
+  Access: LEVEL 6 REQUIRED.</span>`,
+  'RADZINSKY':    () => `<span class="ta">Personnel file: S. RADZINSKY — Operator A (former)
+  Status: <span class="tr">CLASSIFIED — ORDER V.K.</span>
+  Last active cycle: [REDACTED]
+  Notes: Co-authored blast door map (Sublevel A).
+         See physical installation.</span>`,
+  'SOS':          () => `<span class="tr">External comms are permanently blocked.
+  §7-B. No exceptions.
+  You are where you need to be.
+  Execute the protocol.</span>`,
+  'PUSH THE BUTTON': () => `<span class="tb">Yes. That is exactly what you are here for.</span>`,
+  'MAMA':         () => `<span class="tm">This is not a record player, Operator.</span>`,
+  'INMAN':        () => `<span class="ta">Personnel file: J. INMAN — Former operator.
+  Departure circumstances: unclear.
+  Last active cycle: ~10500-range.
+  File: <span class="tr">REDACTED — ORDER V.K.</span></span>`,
+  'BLAST DOOR':   () => `<span class="ta">The blast door map — Sublevel A.
+  Compiled across many years by two operators.
+  One annotation reads: "I AM HERE."
+  We do not know who wrote it.
+  We do not know if they still are.</span>`,
+  '108':          () => `<span class="ta">108 minutes.
+  We initially believed the interval was chosen
+  for operational convenience.
+  We no longer hold that belief.</span>`,
+  'WATCH':        () => `<span class="ta">There are camera positions you have not been
+  told about. The island is always watching.
+  This terminal session is being recorded.</span>`,
+};
+
+let termHistory = [], termHistIdx = -1;
+
+function openTerminal() {
+  document.getElementById('termOverlay').classList.add('open');
+  if (!termReady) {
+    termReady = true;
+    document.getElementById('termOut').innerHTML = BOOT_MSG;
+  }
+  setTimeout(() => document.getElementById('termInp').focus(), 80);
+}
+function closeTerminal() {
+  document.getElementById('termOverlay').classList.remove('open');
+}
+function termPrint(html) {
+  const out = document.getElementById('termOut');
+  out.innerHTML += html + '\n';
+  out.scrollTop = out.scrollHeight;
+}
+
+function termKey(e) {
+  const inp = document.getElementById('termInp');
+  if (e.key === 'Enter') {
+    const raw = inp.value.trim();
+    if (!raw) return;
+    const cmd = raw.toUpperCase();
+
+    termHistory.unshift(cmd);
+    termHistIdx = -1;
+
+    // Echo with show-accurate >: prompt
+    termPrint(`\n<span class="td">&gt;: ${raw.toUpperCase()}</span>`);
+    inp.value = '';
+
+    // Match command
+    let handler = CMDS[cmd] || SECRETS[cmd];
+
+    // READ command
+    if (!handler && cmd.startsWith('READ ')) {
+      const path = cmd.replace('READ ', '').trim();
+      const norm = path.startsWith('/') ? path : '/' + path;
+      handler = FILES[norm] || FILES['/' + path.replace(/^\/+/,'')];
+      if (!handler) {
+        // Try without leading slash
+        handler = FILES[path];
+      }
+    }
+
+    if (handler) {
+      const r = handler();
+      if (r !== null && r !== undefined) termPrint(r);
+    } else {
+      termPrint(`<span class="tr">COMMAND NOT FOUND: ${cmd}</span>\n<span class="td">Type HELP for available commands.</span>`);
+    }
+    document.getElementById('termOut').scrollTop = 99999;
+  }
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (termHistIdx < termHistory.length - 1) inp.value = termHistory[++termHistIdx];
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (termHistIdx > 0) inp.value = termHistory[--termHistIdx];
+    else { termHistIdx = -1; inp.value = ''; }
+  }
+  if (e.key === 'Escape') closeTerminal();
+}
+
+// Close overlays on backdrop click
+['termOverlay','manifestOverlay'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) {
+      if (id === 'termOverlay') closeTerminal();
+      else closeManifest();
+    }
+  });
+});
+
+/* ══════════════
+   CONSOLE ARG
+   ══════════════ */
+console.log('%c DHARMA INITIATIVE — EYES ONLY ', 'background:#010a02;color:#4dff7c;font-family:monospace;font-size:13px;border:1px solid #4dff7c;padding:4px 10px;');
+console.log('%c If you are reading this, you have found something you were not meant to find.', 'color:#25b84a;font-family:monospace;');
+console.log('%c The protocol must be maintained. Whatever it takes.  — V.K., Cycle 9341', 'color:#0f5a25;font-family:monospace;font-style:italic;');
+console.log('%c Next step: Open the terminal. Type DHARMA. Look to the corners.', 'color:#071a0d;font-family:monospace;');
+
+</script>
+</body>
+</html>
+<!-- DHARMA INITIATIVE — INTRANET NODE SWN-7 — END OF DOCUMENT -->
+<!-- IF YOU FOUND THIS IN PAGE SOURCE: You are paying attention. Good. -->
+<!-- The island coordinates are in the terminal. You need Clearance 5. -->
+<!-- Clearance 5 is closer than you think. The footer has always had a clue. -->
+<!-- vk-108.txt: "The equation has 6 factors. The island is the 7th." -->
+<!-- NEXT STEP: ↑↑↓↓←→←→ -->
